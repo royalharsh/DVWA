@@ -10,29 +10,29 @@ dvwaDatabaseConnect();
 if( isset( $_POST[ 'Login' ] ) ) {
 	// Anti-CSRF
 	checkToken( $_REQUEST[ 'user_token' ], $_SESSION[ 'session_token' ], 'login.php' );
-
+	$conn = mysqli_connect( $_DVWA[ 'db_server' ], $_DVWA[ 'db_user' ], $_DVWA[ 'db_password' ] );
 	$user = $_POST[ 'username' ];
 	$user = stripslashes( $user );
-	$user = mysql_real_escape_string( $user );
+	$user = mysqli_real_escape_string( $conn, $user );
 
 	$pass = $_POST[ 'password' ];
 	$pass = stripslashes( $pass );
-	$pass = mysql_real_escape_string( $pass );
+	$pass = mysqli_real_escape_string( $conn, $pass );
 	$pass = md5( $pass );
 
 	$query = ("SELECT table_schema, table_name, create_time
 				FROM information_schema.tables
 				WHERE table_schema='{$_DVWA['db_database']}' AND table_name='users'
 				LIMIT 1");
-	$result = @mysql_query( $query );
-	if( mysql_num_rows( $result ) != 1 ) {
+	$result = mysqli_query( $conn, $query );
+	if( mysqli_num_rows( $result ) != 1 ) {
 		dvwaMessagePush( "First time using DVWA.<br />Need to run 'setup.php'." );
 		dvwaRedirect( DVWA_WEB_PAGE_TO_ROOT . 'setup.php' );
 	}
 
-	$query  = "SELECT * FROM `users` WHERE user='$user' AND password='$pass';";
-	$result = @mysql_query( $query ) or die( '<pre>' . mysql_error() . '.<br />Try <a href="setup.php">installing again</a>.</pre>' );
-	if( $result && mysql_num_rows( $result ) == 1 ) {    // Login Successful...
+	$query  = "SELECT * FROM users WHERE user='$user' AND password='$pass';";
+	$result = mysqli_query( $conn, $query ) or die( '<pre>' . mysqli_error($conn) . '.<br />Try <a href="setup.php">installing again</a>.</pre>' );
+	if( $result && mysqli_num_rows( $result ) == 1 ) {    // Login Successful...
 		dvwaMessagePush( "You have logged in as '{$user}'" );
 		dvwaLogin( $user );
 		dvwaRedirect( DVWA_WEB_PAGE_TO_ROOT . 'index.php' );

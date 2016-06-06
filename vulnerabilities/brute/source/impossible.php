@@ -1,18 +1,21 @@
 <?php
 
 if( isset( $_POST[ 'Login' ] ) ) {
+	// Connect
+	$conn = mysqli_connect( $_DVWA[ 'db_server' ], $_DVWA[ 'db_user' ], $_DVWA[ 'db_password' ] );
+
 	// Check Anti-CSRF token
 	checkToken( $_REQUEST[ 'user_token' ], $_SESSION[ 'session_token' ], 'index.php' );
 
 	// Sanitise username input
 	$user = $_POST[ 'username' ];
 	$user = stripslashes( $user );
-	$user = mysql_real_escape_string( $user );
+	$user = mysqli_real_escape_string( $conn, $user );
 
 	// Sanitise password input
 	$pass = $_POST[ 'password' ];
 	$pass = stripslashes( $pass );
-	$pass = mysql_real_escape_string( $pass );
+	$pass = mysqli_real_escape_string( $conn, $pass );
 	$pass = md5( $pass );
 
 	// Default values

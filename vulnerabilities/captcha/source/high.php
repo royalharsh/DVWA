@@ -22,14 +22,16 @@ if( isset( $_POST[ 'Change' ] ) ) {
 		return;
 	}
 	else {
+		// Connect
+		$conn = mysqli_connect( $_DVWA[ 'db_server' ], $_DVWA[ 'db_user' ], $_DVWA[ 'db_password' ] );
 		// CAPTCHA was correct. Do both new passwords match?
 		if( $pass_new == $pass_conf ) {
-			$pass_new = mysql_real_escape_string( $pass_new );
+			$pass_new = mysqli_real_escape_string( $conn, $pass_new );
 			$pass_new = md5( $pass_new );
 
 			// Update database
 			$insert = "UPDATE `users` SET password = '$pass_new' WHERE user = '" . dvwaCurrentUser() . "' LIMIT 1;";
-			$result = mysql_query( $insert ) or die( '<pre>' . mysql_error() . '</pre>' );
+			$result = mysqli_query( $conn, $insert ) or die( '<pre>' . mysqli_error() . '</pre>' );
 
 			// Feedback for user
 			$html .= "<pre>Password Changed.</pre>";
@@ -41,7 +43,7 @@ if( isset( $_POST[ 'Change' ] ) ) {
 		}
 	}
 
-	mysql_close();
+	mysqli_close();
 }
 
 // Generate Anti-CSRF token
